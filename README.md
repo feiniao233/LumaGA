@@ -102,3 +102,9 @@ MIT/Apache-2.0 license files in `rust/logic/sled/`.
 
 - Cookie login is available from **Sign in to NGA → Import Cookie**; see
   [usage, security and verification notes](docs/cookie-login.md).
+
+## Desktop QR login
+
+- Signed-in users can open **Personal Center → Scan to sign in on computer**,
+  scan an NGA desktop QR, and confirm on the official authorization page.
+  See [usage and verification notes](docs/desktop-qr-login.md).

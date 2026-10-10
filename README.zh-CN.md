@@ -124,3 +124,8 @@ MNGA 未附带 LICENSE，其 README 保留所有权利，因此本移植项目�
 
 - 登录页提供 **导入 Cookie**，可粘贴 Cookie 请求头或分别填写 UID / CID；
   详情见 [使用、安全与验证说明](docs/cookie-login.md)。
+
+## 扫码登录电脑
+
+- 已登录用户可进入 **个人中心 → 扫码登录电脑**，扫描电脑 NGA 网页上的二维码，
+  再在 NGA 官方页面确认授权。详见[使用与验证说明](docs/desktop-qr-login.md)。

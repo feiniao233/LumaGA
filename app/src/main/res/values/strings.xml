@@ -439,4 +439,25 @@
     <string name="cookie_verification_failed">Could not verify this session. The cookie may be expired, the UID may not match, or NGA may have blocked the request. Your existing account is unchanged.</string>
     <string name="cookie_network_error">Could not reach NGA securely. Check your network and try again. Your existing account is unchanged.</string>
     <string name="import_and_sign_in">Verify and sign in</string>
+    <string name="qr_desktop_login">Scan to sign in on computer</string>
+    <string name="qr_desktop_login_summary">Authorize an NGA desktop login with this account</string>
+    <string name="qr_close">Close</string>
+    <string name="qr_account_changed">Your account changed. Close this page and scan again with the intended account.</string>
+    <string name="qr_interrupted">Authorization was interrupted when the app went into the background. Scan again to continue. Any authorization already confirmed on NGA remains in effect.</string>
+    <string name="qr_webview_update">Update Android System WebView or Chrome to use isolated, secure QR authorization. Other sign-in methods remain available.</string>
+    <string name="qr_review_account">Account: %1$s</string>
+    <string name="qr_review_site">Official site: https://%1$s</string>
+    <string name="qr_review_notice">Only scan a QR code displayed on a computer you trust. Opening the official page shares this account’s login credentials with NGA. You must confirm there to let that computer sign in. Do not scan codes sent by strangers.</string>
+    <string name="qr_open_official_page">Continue to NGA confirmation</string>
+    <string name="qr_scan_again">Scan again</string>
+    <string name="qr_official_page">NGA official authorization · %1$s</string>
+    <string name="qr_result_notice">Confirm using NGA’s button below. The official alert and the desktop page show the result. Closing this page does not revoke a login you already approved.</string>
+    <string name="qr_page_failed">Could not complete NGA’s confirmation page. Check the computer first: a submitted approval may already have succeeded. Otherwise close this page, refresh the QR and retry, or refresh your LumaGA account session.</string>
+    <string name="qr_official_result">Message from NGA</string>
+    <string name="qr_ok">OK</string>
+    <string name="qr_scan_instruction">Open QR login on NGA in your computer’s browser, then point the camera at that code. Scan only codes on a computer you trust.</string>
+    <string name="qr_camera_permission">Camera access is needed only for scanning. If permission is disabled, enable Camera for LumaGA in Android Settings and try again.</string>
+    <string name="qr_allow_camera">Allow camera</string>
+    <string name="qr_invalid">This is not a supported NGA desktop-login QR code. Use the current code on bbs.nga.cn or ngabbs.com.</string>
+    <string name="qr_camera_failed">The camera could not be opened. Close the scanner and try again after checking camera permissions and other camera apps.</string>
 </resources>
