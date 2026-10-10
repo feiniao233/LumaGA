@@ -66,9 +66,8 @@ guessing a fallback. Any failure after submission still remains unconfirmed.
 The device reported `QR-F15`, establishing that the blanket event-attribute check
 blocked the form; the actual attribute and authenticated HTML were not collected.
 Version 1.2.4 removes only this check because native parsing never executes these
-attributes. Downstream hidden-field checks and end-to-end desktop sign-in remain
-unverified on the device; this is a targeted compatibility fix, not a guarantee
-that the entire authenticated flow now succeeds.
+attributes. The reporting user subsequently confirmed the flow works on their
+device. This does not verify all devices or interruption/error scenarios.
 
 ## Security boundaries
 
@@ -149,8 +148,9 @@ Apache-2.0 [Gson](https://github.com/google/gson).
 
 ## Verification and limits
 
-All 151 JVM tests pass, including 34 diagnostic regressions added in 1.2.3
-and three additional inert-event regressions in 1.2.4.
+All 173 JVM tests pass, including 34 diagnostic regressions added in 1.2.3,
+three additional inert-event regressions in 1.2.4 and 22 navigation-stack
+regressions in the CI cleanup.
 They cover strict QR URLs, captured
 logged-out form rejection, synthetic
 supported forms/CSRF fields, hostile and ambiguous HTML, response envelopes,
@@ -163,8 +163,12 @@ validated fields and fixed request endpoints, GET-only preflight, one explicit
 POST, and invalid forms that remain rejected despite event attributes.
 Transport tests intercept all traffic in memory; they do not use NGA credentials
 or send authorization requests. Debug and unsigned release builds are checked.
-The full debug lint baseline has five pre-existing failures (`NonObservableLocale`,
-two `RestrictedApi`, two `MissingTranslation`).
+Full debug lint and release vital lint pass after correcting the five existing
+errors: observable Compose locale, public ComposeNavigator back-stack access,
+and two missing Chinese translations. Existing warnings remain. The navigation
+helper preserves exact entry IDs and stops on unexpected reentrant changes.
+Three additional instrumented navigation regressions compile, but were not run
+because this cloud environment has no configured emulator or connected device.
 
 A physical device test is still required, especially Huawei:
 
@@ -179,5 +183,5 @@ A physical device test is still required, especially Huawei:
 - Ordinary account login and in-app browsing remain unaffected.
 
 No real credentials were used and no approval POST was sent during development.
-Authenticated form details and actual desktop sign-in have not been verified
-end to end. Unsupported form changes fail closed rather than bypassing checks.
+The user reported the 1.2.4 flow working on their device; authenticated HTML was
+not collected. Unsupported form changes fail closed rather than bypassing checks.

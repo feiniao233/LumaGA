@@ -31,6 +31,20 @@ class ActivityNavigationTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Test
+    fun indexedPopIsInertWithoutALocalNavHost() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val navigator = navigator(activity, Route.ForumList)
+                navigator.popTo(-1)
+                navigator.popTo(0)
+                navigator.popTo(1)
+                assertEquals(listOf(Route.ForumList), navigator.stack.value)
+                assertFalse(activity.isFinishing)
+            }
+        }
+    }
+
+    @Test
     fun systemBackPopsOneActivityAndToolbarBackReturnsToSameRoot() {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             lateinit var root: MainActivity
