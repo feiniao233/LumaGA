@@ -34,6 +34,10 @@ class AuthStorage(private val prefs: SharedPreferences) {
     /** Fires after every auth mutation; consumers reload dependent state. */
     val authChanged = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
 
+    // Monotonic identity revision also catches switching away and back during QR auth.
+    private val credentialRevision = java.util.concurrent.atomic.AtomicLong()
+    val sessionRevision: Long get() = credentialRevision.get()
+
     val signedIn: Boolean
         get() = _authInfo.value.token.isNotEmpty()
 
@@ -83,6 +87,9 @@ class AuthStorage(private val prefs: SharedPreferences) {
 
     /** Set the current account, deduplicating the known-account set by uid. */
     fun setCurrentAuth(info: AuthInfo) {
+        if (_authInfo.value.uid != info.uid || _authInfo.value.token != info.token) {
+            credentialRevision.incrementAndGet()
+        }
         _allAuthInfos.value = _allAuthInfos.value.filterNot { it.uid == info.uid } + info
         persistAllAuthInfos()
         _authInfo.value = info
@@ -98,6 +105,7 @@ class AuthStorage(private val prefs: SharedPreferences) {
         _allAuthInfos.value = _allAuthInfos.value.filterNot { it.uid == currentUid }
         persistAllAuthInfos()
         val fallback = _allAuthInfos.value.firstOrNull() ?: AuthInfo.getDefaultInstance()
+        credentialRevision.incrementAndGet()
         _authInfo.value = fallback
         persistAuthInfo()
         syncAuthWithLogic()

@@ -58,6 +58,50 @@ class PredictiveBackTest {
     }
 
     @Test
+    fun popToUsesRouteIndexesAndRetainsExactDuplicateEntry() = withNavigation { scenario, navigator ->
+        scenario.onActivity { navigator.push(Route.About) }
+        awaitDestination(scenario, navigator, Route.About)
+        var firstAboutId: String? = null
+        scenario.onActivity { firstAboutId = navigator.navController.currentBackStackEntry!!.id }
+        scenario.onActivity { navigator.push(Route.Settings) }
+        awaitDestination(scenario, navigator, Route.Settings)
+        scenario.onActivity { navigator.push(Route.About) }
+        awaitDestination(scenario, navigator, Route.About)
+        scenario.onActivity {
+            val topId = navigator.navController.currentBackStackEntry!!.id
+            assertTrue(firstAboutId != topId)
+            navigator.popTo(-1)
+            navigator.popTo(navigator.size)
+            assertEquals(topId, navigator.navController.currentBackStackEntry!!.id)
+            navigator.popTo(1)
+        }
+        await(scenario) {
+            navigator.navController.currentBackStackEntry?.id == firstAboutId && navigator.size == 2
+        }
+        awaitDestination(scenario, navigator, Route.About)
+        scenario.onActivity {
+            assertEquals(listOf(Route.ForumList, Route.About), navigator.stack.value)
+            assertEquals(Navigator.Op.POP, navigator.lastOp)
+            navigator.popTo(0)
+        }
+        awaitDestination(scenario, navigator, Route.ForumList)
+        scenario.onActivity { assertEquals(listOf(Route.ForumList), navigator.stack.value) }
+    }
+
+    @Test
+    fun replacementIsReflectedByThePublicComposeStack() = withNavigation { scenario, navigator ->
+        scenario.onActivity { navigator.push(Route.About) }
+        awaitDestination(scenario, navigator, Route.About)
+        scenario.onActivity { navigator.replace(Route.Settings) }
+        awaitDestination(scenario, navigator, Route.Settings)
+        scenario.onActivity {
+            assertEquals(listOf(Route.Settings), navigator.stack.value)
+            navigator.popTo(0)
+            assertEquals(Route.Settings, RouteCodec.decode(navigator.navController.currentBackStackEntry!!))
+        }
+    }
+
+    @Test
     fun cancelledGesturePreviewsPreviousScreenWithoutPopping() = withNavigation { scenario, navigator ->
         scenario.onActivity { navigator.push(Route.About) }
         awaitDestination(scenario, navigator, Route.About)

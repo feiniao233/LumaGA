@@ -119,3 +119,13 @@ rust/gen-kotlin-protos.sh   # 仅当 rust/protos/ 变更时
 MNGA 未附带 LICENSE，其 README 保留所有权利，因此本移植项目（含 `rust/` 下引入的 Rust 源码）未经作者许可不可再分发。`rust/logic/sled` 保留其自身的 MIT / Apache-2.0 许可文件。
 
 本项目仅供学习交流使用，请遵守 NGA 用户协议与相关法律法规。
+
+## Cookie login
+
+- 登录页提供 **导入 Cookie**，可粘贴 Cookie 请求头或分别填写 UID / CID；
+  详情见 [使用、安全与验证说明](docs/cookie-login.md)。
+
+## 扫码登录电脑
+
+- 已登录用户可进入 **个人中心 → 扫码登录电脑**，扫描电脑 NGA 网页上的二维码，
+  读取 NGA 官方表单后，在原生界面确认授权，不再依赖 WebView 多配置文件支持（兼容华为扫码入口）。详见[使用与验证说明](docs/desktop-qr-login.md)。

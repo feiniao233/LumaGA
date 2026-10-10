@@ -42,12 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.bugenzhao.mnga.App
+import com.bugenzhao.mnga.R
 import com.bugenzhao.mnga.protos.datamodel.AuthInfo
 import com.bugenzhao.mnga.util.L
 import com.bugenzhao.mnga.util.URLs
@@ -145,6 +147,7 @@ fun LoginSheet(onDismiss: () -> Unit) {
     val alertMessage = remember { mutableStateOf<String?>(null) }
     val alertResult = remember { mutableStateOf<JsResult?>(null) }
     val pagesMenuOpen = remember { mutableStateOf(false) }
+    var importingCookies by remember { mutableStateOf(false) }
 
     /**
      * The running "tweak the page" task. Restarted on every `onPageFinished`
@@ -166,7 +169,7 @@ fun LoginSheet(onDismiss: () -> Unit) {
     }
 
     fun authWithCookies() {
-        if (authing.value) return
+        if (authing.value || importingCookies) return
         val cookies = CookieManager.getInstance().getCookie(URLs.login) ?: return
         val map = cookies.split(";")
             .mapNotNull { part ->
@@ -267,6 +270,12 @@ fun LoginSheet(onDismiss: () -> Unit) {
                         }
                     },
                 )
+
+                TextButton(
+                    enabled = !authing.value,
+                    onClick = { if (!authing.value) importingCookies = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(R.string.import_cookie)) }
 
                 Box(Modifier.fillMaxSize()) {
                     AndroidView(
@@ -379,7 +388,22 @@ fun LoginSheet(onDismiss: () -> Unit) {
                 destroy()
             }
             webView = null
+            clearLoginCookies()
         }
+    }
+
+    if (importingCookies) {
+        CookieImportDialog(
+            onDismiss = { importingCookies = false },
+            onVerified = { credentials ->
+                authing.value = true
+                App.authStorage.setCurrentAuth(
+                    AuthInfo.newBuilder().setUid(credentials.uid).setToken(credentials.cid).build()
+                )
+                importingCookies = false
+                onDismiss()
+            },
+        )
     }
 
     val message = alertMessage.value

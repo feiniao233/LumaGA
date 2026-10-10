@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.ComposeNavigator
 import com.bugenzhao.mnga.MainActivity
 import com.bugenzhao.mnga.ScreenActivity
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
  *
  * The public surface (push/pop/popToRoot/popTo/replace/contains/stack/size/
  * lastOp) is unchanged; internally the route list is derived from the
- * NavController back stack, so programmatic navigation (deep links, context
+ * ComposeNavigator's public back stack, so programmatic navigation (deep links, context
  * menus) and system back presses stay in sync. NavHost keeps every entry's
  * composition and saveable state alive while it is off-screen, so popping back
  * to a screen resumes it instead of rebuilding and refetching.
@@ -77,8 +78,15 @@ class Navigator(
     }
 
     fun popTo(index: Int) {
-        val entry = navController.currentBackStack.value.getOrNull(index) ?: return
-        navController.popBackStack(entry, inclusive = false)
+        // Activity navigation has no local multi-screen stack to pop by index.
+        if (usesActivityNavigation) return
+        popToRouteEntry(
+            index = index,
+            entries = { composeNavigator.backStack.value },
+            isRoute = { RouteCodec.decode(it) != null },
+            entryId = { it.id },
+            pop = { navController.popBackStack() },
+        )
     }
 
     fun replace(route: Route) {
@@ -97,6 +105,9 @@ class Navigator(
     private val usesActivityNavigation: Boolean
         get() = activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 
+    private val composeNavigator: ComposeNavigator
+        get() = navController.navigatorProvider.getNavigator(ComposeNavigator::class.java)
+
     /**
      * Keeps [stack] (and [lastOp]) in sync with the NavController back stack.
      * Call once from composition:
@@ -104,7 +115,8 @@ class Navigator(
      */
     fun observe(scope: CoroutineScope) {
         scope.launch {
-            navController.currentBackStack.collect { entries ->
+            // Includes restored/offscreen entries, unlike visibleEntries or the current-entry flow.
+            composeNavigator.backStack.collect { entries ->
                 val routes = entries.mapNotNull(RouteCodec::decode)
                 val previous = _stack.value
                 lastOp = when {

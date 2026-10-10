@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -386,7 +387,7 @@ private fun StatsFlow(
         if (showRegDate) {
             StatItem(
                 icon = Icons.Outlined.Event,
-                text = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
+                text = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM, LocalLocale.current.platformLocale)
                     .format(Date((user?.regDate ?: 0L) * 1000)),
                 tint = secondary,
                 style = footnote,

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAddAlt1
 import androidx.compose.material.icons.filled.PersonRemoveAlt1
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Shield
@@ -40,14 +41,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bugenzhao.mnga.App
+import com.bugenzhao.mnga.R
+import com.bugenzhao.mnga.ui.screens.login.DesktopQrLoginSheet
 import com.bugenzhao.mnga.model.PlusFeature
 import com.bugenzhao.mnga.protos.datamodel.AuthInfo
 import com.bugenzhao.mnga.protos.datamodel.User
@@ -107,6 +114,11 @@ private fun PersonalCenterContent(
     val blockedUserCount = blockWords.count { it.word.startsWith(BlockWordsStorage.userPrefix) }
 
     val signedIn = authInfo.token.isNotEmpty()
+    var scanningDesktopLogin by remember { mutableStateOf(false) }
+
+    if (scanningDesktopLogin) {
+        DesktopQrLoginSheet(onDismiss = { scanningDesktopLogin = false })
+    }
 
     LazyColumn(
         modifier.padding(horizontal = 16.dp),
@@ -140,6 +152,11 @@ private fun PersonalCenterContent(
         if (signedIn) {
             item(key = "section-quick") {
                 MenuCard {
+                    MenuRow(
+                        icon = Icons.Filled.QrCodeScanner,
+                        title = stringResource(R.string.qr_desktop_login),
+                        subtitle = stringResource(R.string.qr_desktop_login_summary),
+                    ) { scanningDesktopLogin = true }
                     MenuRow(
                         icon = Icons.Filled.Notifications,
                         title = L.str(context, "Notifications"),
