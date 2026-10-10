@@ -10,9 +10,13 @@ import java.util.Map;
 public final class NgaQrLoginTarget {
     public final String host;
     public final String url;
+    public final String authorizationUrl;
+    private final String key;
 
     private NgaQrLoginTarget(String host, String key) {
         this.host = host;
+        this.key = key;
+        this.authorizationUrl = "https://" + host + "/nuke.php?__lib=login&__act=qrlogin_allow&raw=3";
         this.url = "https://" + host + "/nuke.php?__lib=login&__act=qrlogin_ui&qrkey=" + key;
     }
 
@@ -26,6 +30,8 @@ public final class NgaQrLoginTarget {
         if (key == null || !key.matches("[A-Za-z0-9]{1,512}")) throw invalid();
         return new NgaQrLoginTarget(uri.getHost().toLowerCase(Locale.ROOT), key);
     }
+
+    String key() { return key; }
 
     /** Only the scanned confirmation page and its official same-host form endpoint. */
     public boolean allowsRequest(String input, String method, boolean mainFrame) {

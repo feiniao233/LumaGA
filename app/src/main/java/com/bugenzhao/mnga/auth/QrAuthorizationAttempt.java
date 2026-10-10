@@ -1,6 +1,6 @@
 package com.bugenzhao.mnga.auth;
 
-/** Invalidate late camera/cookie/WebView callbacks on close, restart or account changes. */
+/** Invalidate late camera/network callbacks on close, restart or account changes. */
 public final class QrAuthorizationAttempt {
     private long generation;
     private String uid;

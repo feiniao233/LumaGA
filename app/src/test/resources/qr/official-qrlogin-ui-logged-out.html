@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name='viewport' content='width=400'>
+<meta http-equiv='Content-Type' content='text/html; charset=GBK'>
+<meta name='renderer' content='webkit|ie-stand|ie-comp'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge; IE=11; IE=10; IE=9; IE=8'>
+<title>用户登录</title>
+<script>
+try{
+if(navigator.userAgent.match(/mobile/) && navigator.userAgent.match(/chromium|chrome/))
+	location.assign('nga://?url='+location.href)
+}catch(e){}
+</script>
+<style>
+a {text-decoration:none;color:#b87563}
+body, textarea, select, input, button {font-size:14px;font-family:Microsoft Yahei, 微软雅黑, Verdana, Tahoma, Arial, sans-serif}
+input,select {border:none;background:#fffcee;padding:0.15em}
+.inpu {width:18em;margin-left:0.5em}
+select {color:#aaa}
+.block {border:1px solid #b87563;border-radius:0.15em;margin-bottom:0.5em;background:#fffcee;line-height:4em}
+.invertblock {display:block;background:#591804;border-radius:0.15em;color:#fff;margin-bottom:0.5em;line-height:4em;text-decoration:none}
+</style>
+</head>
+<body style='text-align:center;background:#fffcee;line-height:2em'>
+<form id='loginform' target='loginframe' method='post' action='/nuke.php?__lib=login&__act=qrlogin_allow&raw=3'>
+<div style='width:25em;padding:1em;margin:auto;border:1px solid #b87563;border-radius:0.3em;background:#fff8e7'>
+	<div class='block'>BBS.NGA.CN 扫码登录</div>
+	<div class='invertblock' style='background-color:#888'>你没有在这台设备上登录</div>
+</div>
+</form>
+<iframe name='loginframe' id='loginframe' style='display:none'></iframe>
+<script>
+var $ = function(x){return document.getElementById(x)}, _SUBMITTING = 0
+
+function loginSubmit(o){
+if(_SUBMITTING==1)return
+var qk = location.search.match(/qrkey=([a-zA-Z0-9]+)/)
+if(!qk)return
+$('qrkey').value = qk[1]
+_SUBMITTING=1
+$('loginform').submit()
+o.style.backgroundColor = '#aaa'
+}//fe
+
+function loginResult(o){
+if(_SUBMITTING==0)return
+if (o.readyState && o.readyState != 'loaded' && o.readyState != 'complete')return
+var d
+try{
+	d = o.contentWindow.script_muti_get_var_store
+	}
+catch(e){
+	d={error:['提交失败 请重试']}
+	console.log(e)
+	}
+alert(d.error?d.error[0]:d.data[0])
+$('loginsubmit').style.backgroundColor = '#aaa'
+}//fe
+
+var x = $('loginframe')
+if('onload' in x)
+	x.onload = function(){loginResult(this)}
+else
+	x.onreadystatechange = function(){loginResult(this)}
+</script>
+</body>

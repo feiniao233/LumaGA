@@ -106,5 +106,6 @@ MIT/Apache-2.0 license files in `rust/logic/sled/`.
 ## Desktop QR login
 
 - Signed-in users can open **Personal Center → Scan to sign in on computer**,
-  scan an NGA desktop QR, and confirm on the official authorization page.
+  scan an NGA desktop QR, and explicitly authorize it in a native confirmation screen.
+  This flow does not use WebView, including on Huawei devices.
   See [usage and verification notes](docs/desktop-qr-login.md).
