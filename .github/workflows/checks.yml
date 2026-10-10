@@ -37,10 +37,26 @@ jobs:
       # Hosted Android runners provide the SDK. The native Rust libraries and
       # standard Android debug keystore are already committed in this project.
       - name: Run unit tests
+        id: unit_tests
         run: ./gradlew testDebugUnitTest --no-daemon --stacktrace
 
       - name: Run Android lint
-        run: ./gradlew lintDebug --no-daemon --stacktrace
+        run: |
+          if ./gradlew lintDebug --no-daemon --stacktrace; then
+            exit 0
+          else
+            # Preserve failure, but expose every issue without uploading artifacts.
+            test ! -f app/build/reports/lint-results-debug.txt || cat app/build/reports/lint-results-debug.txt
+            exit 1
+          fi
 
       - name: Compile debug APK (no upload)
+        # A pre-existing lint error must not hide whether the APK compiles.
+        if: ${{ !cancelled() && steps.unit_tests.outcome == 'success' }}
         run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Compile unsigned release APK (no upload)
+        if: ${{ !cancelled() && steps.unit_tests.outcome == 'success' }}
+        run: |
+          test ! -f app/release-keystore.properties
+          ./gradlew assembleRelease --no-daemon --stacktrace
