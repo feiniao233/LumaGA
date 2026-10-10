@@ -431,4 +431,12 @@
     <string name="source_code">Source Code</string>
     <string name="an_nga_forum_client">An NGA forum client, ported from MNGA.</string>
     <string name="app_name">LumaGA</string>
+    <string name="import_cookie">Import Cookie</string>
+    <string name="import_cookie_help">Paste your own NGA Cookie header, or enter ngaPassportUid and ngaPassportCid. CID is a login secret. Only these two values are sent directly to bbs.nga.cn over HTTPS to verify the account. They are saved using the app’s existing account storage only after verification. Do not share them.</string>
+    <string name="cookie_header">Cookie header</string>
+    <string name="verifying_cookie">Verifying your NGA session…</string>
+    <string name="invalid_cookie_input">Enter a positive UID and a complete CID, or a Cookie header containing both passport values. Conflicting duplicates are not accepted.</string>
+    <string name="cookie_verification_failed">Could not verify this session. The cookie may be expired, the UID may not match, or NGA may have blocked the request. Your existing account is unchanged.</string>
+    <string name="cookie_network_error">Could not reach NGA securely. Check your network and try again. Your existing account is unchanged.</string>
+    <string name="import_and_sign_in">Verify and sign in</string>
 </resources>

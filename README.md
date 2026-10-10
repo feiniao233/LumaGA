@@ -97,3 +97,8 @@ MNGA ships without a LICENSE file and its README reserves all rights, so this
 port — including the Rust sources vendored under `rust/` — is not
 redistributable without permission from its author. Vendored sled keeps its own
 MIT/Apache-2.0 license files in `rust/logic/sled/`.
+
+## Cookie login
+
+- Cookie login is available from **Sign in to NGA → Import Cookie**; see
+  [usage, security and verification notes](docs/cookie-login.md).

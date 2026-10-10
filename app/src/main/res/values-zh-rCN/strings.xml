@@ -429,4 +429,12 @@
     <string name="source_code">开源仓库</string>
     <string name="an_nga_forum_client">一个 NGA 论坛客户端，移植自 MNGA。</string>
     <string name="app_name">LumaGA</string>
+    <string name="import_cookie">导入 Cookie</string>
+    <string name="import_cookie_help">粘贴你自己的 NGA Cookie 请求头，或分别填写 ngaPassportUid 和 ngaPassportCid。CID 相当于登录密码，请勿分享。仅这两个值会通过 HTTPS 直接发给 bbs.nga.cn 验证账号；验证成功后使用应用现有的账号存储保存。</string>
+    <string name="cookie_header">Cookie 请求头</string>
+    <string name="verifying_cookie">正在验证 NGA 会话…</string>
+    <string name="invalid_cookie_input">请输入有效的正整数 UID 和完整 CID，或包含这两项的 Cookie 请求头。不接受值冲突的重复项。</string>
+    <string name="cookie_verification_failed">无法验证此会话：Cookie 可能已过期、UID 不匹配，或请求被 NGA 拦截。原有账号保持不变。</string>
+    <string name="cookie_network_error">无法安全连接 NGA，请检查网络后重试。原有账号保持不变。</string>
+    <string name="import_and_sign_in">验证并登录</string>
 </resources>

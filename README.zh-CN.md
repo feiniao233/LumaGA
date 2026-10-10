@@ -119,3 +119,8 @@ rust/gen-kotlin-protos.sh   # 仅当 rust/protos/ 变更时
 MNGA 未附带 LICENSE，其 README 保留所有权利，因此本移植项目（含 `rust/` 下引入的 Rust 源码）未经作者许可不可再分发。`rust/logic/sled` 保留其自身的 MIT / Apache-2.0 许可文件。
 
 本项目仅供学习交流使用，请遵守 NGA 用户协议与相关法律法规。
+
+## Cookie login
+
+- 登录页提供 **导入 Cookie**，可粘贴 Cookie 请求头或分别填写 UID / CID；
+  详情见 [使用、安全与验证说明](docs/cookie-login.md)。

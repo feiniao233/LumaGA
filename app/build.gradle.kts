@@ -136,4 +136,5 @@ dependencies {
 
     // Local JVM unit tests (no Android framework needed).
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
