@@ -148,10 +148,10 @@ Apache-2.0 [Gson](https://github.com/google/gson).
 
 ## Verification and limits
 
-All 194 JVM tests pass, including 34 diagnostic regressions added in 1.2.3,
+All 196 JVM tests pass, including 34 diagnostic regressions added in 1.2.3,
 three additional inert-event regressions in 1.2.4 and 22 navigation-stack
 regressions in the CI cleanup, plus the notification/favorites tests inherited
-from the synchronized main branch.
+from the synchronized main branch, including the latest folder-specific deletion regressions.
 They cover strict QR URLs, captured
 logged-out form rejection, synthetic
 supported forms/CSRF fields, hostile and ambiguous HTML, response envelopes,

@@ -17,6 +17,8 @@ import com.bugenzhao.mnga.protos.service.AsyncRequest
 import com.bugenzhao.mnga.protos.service.FavoriteTopicListResponse
 import com.bugenzhao.mnga.protos.service.TopicFavorRequest
 import com.bugenzhao.mnga.protos.service.TopicFavorResponse
+import com.bugenzhao.mnga.storage.ColorSchemeMode
+import com.bugenzhao.mnga.storage.ThemeColor
 import com.bugenzhao.mnga.ui.nav.Navigator
 import com.bugenzhao.mnga.ui.screens.favorites.FavoriteTopicDeletions
 import com.bugenzhao.mnga.ui.screens.favorites.FavoriteTopicList
@@ -129,7 +131,10 @@ class FavoriteDeletionTest {
                     activity.setContent {
                         val controller = rememberNavController()
                         val navigator = remember(controller) { Navigator(controller) }
-                        LumaGATheme {
+                        LumaGATheme(
+                            themeColor = ThemeColor.fromRaw(App.prefs.themeColorRaw.value),
+                            colorSchemeMode = ColorSchemeMode.fromRaw(App.prefs.colorSchemeRaw.value),
+                        ) {
                             FavoriteTopicList(
                                 FavoriteTopicFolder.newBuilder().setId("7").build(),
                                 navigator,
