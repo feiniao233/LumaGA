@@ -43,7 +43,7 @@ public enum NgaQrDiagnostic {
     SUBMIT_CONTROL("QR-F12", Hint.FORM),
     SUBMIT_VISIBILITY("QR-F13", Hint.FORM),
     SUBMIT_HOOK("QR-F14", Hint.FORM),
-    FORM_EVENT("QR-F15", Hint.FORM),
+    FORM_EVENT("QR-F15", Hint.FORM), // Reserved for 1.2.3; inert events no longer reject a form.
     CHALLENGE_CONTROL("QR-F16", Hint.FORM),
     FIELD_STATE("QR-F17", Hint.FORM),
     FIELD_NAME("QR-F18", Hint.FORM),

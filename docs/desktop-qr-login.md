@@ -32,7 +32,7 @@ changed site form, or authentication flow requiring extra server cookies is
 currently unsupported and fails closed. If camera permission was permanently
 denied, enable it in Android Settings.
 
-## Local diagnostic codes (1.2.3)
+## Local diagnostic codes (since 1.2.3)
 
 A preflight failure now shows a brief explanation and a fixed code such as
 `QR-F14`. Share only that code as text; no Cookie, QR contents, HTML, logs or
@@ -51,17 +51,24 @@ compatibility cause or mean the account session expired.
   correctly routed official form with neither authorization marker present.
   Missing controls alone do not trigger this diagnosis. It does not prove why
   the server did not recognize the session.
+- `QR-F15` is reserved for the blanket event-attribute rejection in 1.2.3.
+  Version 1.2.4 ignores these inert attributes instead; the known confirmation
+  hook and every other form/field check remain required.
 - `QR-X00`: the cause is still unknown.
 
 Diagnostics use an enum and fixed localized strings only. Public exceptions are
 recreated without raw messages, causes or suppressed exceptions; no arbitrary
 HTML attribute names/values, endpoint URLs, credentials or scanned keys become
-part of a code. This update does not relax authorization checks or guess a new
+part of a code. The 1.2.3 diagnostic update did not relax authorization checks or guess a new
 protocol. Explicitly invalid HTTP charset declarations are rejected instead of
 guessing a fallback. Any failure after submission still remains unconfirmed.
 
-The device-reported preflight incompatibility has not yet been reproduced with
-an authenticated official page; 1.2.3 is a diagnostic update, not a confirmed fix.
+The device reported `QR-F15`, establishing that the blanket event-attribute check
+blocked the form; the actual attribute and authenticated HTML were not collected.
+Version 1.2.4 removes only this check because native parsing never executes these
+attributes. Downstream hidden-field checks and end-to-end desktop sign-in remain
+unverified on the device; this is a targeted compatibility fix, not a guarantee
+that the entire authenticated flow now succeeds.
 
 ## Security boundaries
 
@@ -82,8 +89,10 @@ an authenticated official page; 1.2.3 is a diagnostic update, not a confirmed fi
   logged-out page has no such controls and cannot enable authorization.
 - The action must resolve to the exact same-host `qrlogin_allow&raw=3` endpoint.
   Base URLs, external form-associated controls, method/action overrides,
-  ambiguous forms, disabled fields, visible challenge controls, unknown event
-  handlers and foreign frames are rejected. Hidden fields, including CSRF
+  ambiguous forms, disabled fields, visible challenge controls and foreign
+  frames are rejected. Apart from checking the known confirmation hook, event
+  attributes are ignored as inert data: never executed, fetched or serialized.
+  Hidden fields, including CSRF
   values, are preserved with bounded names/values and duplicate-name checks.
   Reserved routing/authentication fields are refused. The trusted scanned key
   fills an empty `qrkey`; a nonempty different key is refused.
@@ -140,7 +149,8 @@ Apache-2.0 [Gson](https://github.com/google/gson).
 
 ## Verification and limits
 
-All 148 JVM tests pass, including 34 diagnostic regressions added in 1.2.3.
+All 151 JVM tests pass, including 34 diagnostic regressions added in 1.2.3
+and three additional inert-event regressions in 1.2.4.
 They cover strict QR URLs, captured
 logged-out form rejection, synthetic
 supported forms/CSRF fields, hostile and ambiguous HTML, response envelopes,
@@ -148,6 +158,9 @@ strict JSON, unknown results, no-submit preflight, one-shot requests, duplicate
 clicks, canceling in-flight requests, stale account state and body/status limits.
 A direct fake network-chain test also verifies that a 503-style repeated
 transmission and a stale account are blocked before another send.
+Inert-event tests include hostile handler strings and resource URLs, unchanged
+validated fields and fixed request endpoints, GET-only preflight, one explicit
+POST, and invalid forms that remain rejected despite event attributes.
 Transport tests intercept all traffic in memory; they do not use NGA credentials
 or send authorization requests. Debug and unsigned release builds are checked.
 The full debug lint baseline has five pre-existing failures (`NonObservableLocale`,

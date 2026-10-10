@@ -23,7 +23,6 @@ public final class NgaQrLoginForm {
     }
 
     public static NgaQrLoginForm parse(Document document, NgaQrLoginTarget target) {
-        // Keep the 1.2.2 acceptance rules; only classify why a rule rejects the page.
         if (!document.select("base, template, noscript, [form], [formaction], [formmethod], [formenctype]").isEmpty()) throw FORM_CONTEXT.parseFailure();
         if (document.select("form").size() > 1 || document.select("[id=loginform]").size() > 1) throw FORM_AMBIGUOUS.parseFailure();
         Element form = document.selectFirst("form#loginform");
@@ -72,12 +71,8 @@ public final class NgaQrLoginForm {
         if (!visible(submit)) throw SUBMIT_VISIBILITY.parseFailure();
         String click = submit.attr("onclick").trim();
         if (!(click.equals("loginSubmit(this)") || click.equals("loginSubmit(this);"))) throw SUBMIT_HOOK.parseFailure();
-        for (Element element : form.getAllElements()) {
-            for (org.jsoup.nodes.Attribute attribute : element.attributes()) {
-                if (attribute.getKey().toLowerCase(Locale.ROOT).startsWith("on")
-                        && !(element == submit && attribute.getKey().equalsIgnoreCase("onclick"))) throw FORM_EVENT.parseFailure();
-            }
-        }
+        // Other event attributes are inert HTML data: never execute or serialize them.
+        // Only validated hidden name/value pairs below can enter the fixed native POST.
         // These are the only non-hidden control types whose values can be omitted safely.
         if (!form.select("select, textarea, fieldset[disabled], [contenteditable], object").isEmpty()) throw CHALLENGE_CONTROL.parseFailure();
         Map<String, String> fields = new LinkedHashMap<>();

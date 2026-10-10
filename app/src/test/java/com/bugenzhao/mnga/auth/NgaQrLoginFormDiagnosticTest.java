@@ -114,8 +114,22 @@ public class NgaQrLoginFormDiagnosticTest {
         expect(SUBMIT_VISIBILITY, form(INPUT + SUBMIT).replace("id='loginform'", "id='loginform' style='display:none'"));
         for (String handler : new String[]{"", "loginSubmit()", "loginSubmit(this);" + SECRET})
             expect(SUBMIT_HOOK, form(INPUT + SUBMIT.replace("loginSubmit(this)", handler)));
-        expect(FORM_EVENT, form(INPUT + SUBMIT).replace("method='post'", "method='post' onsubmit='" + SECRET + "'"));
-        expect(FORM_EVENT, form(INPUT.replace("type='hidden'", "type='hidden' onload='" + SECRET + "'") + SUBMIT));
+    }
+
+    @Test public void inertEventsCannotBypassSubmissionChallengeOrHiddenFieldChecks() {
+        String good = form(INPUT + SUBMIT).replace("method='post'", "method='post' onsubmit='return false'");
+        expect(SUBMIT_HOOK, good.replace("loginSubmit(this)", SECRET));
+        expect(FORM_ACTION, good.replace(ACTION, "https://evil.example/" + SECRET));
+        expect(FORM_CONTEXT, good.replace("id='loginsubmit'", "id='loginsubmit' formaction='https://evil.example/'"));
+        expect(KEY_MISMATCH, good.replace("value=''", "value='" + SECRET + "'"));
+        for (String control : new String[]{"<input type='text' name='captcha'>", "<textarea></textarea>",
+                "<select></select>", "<div contenteditable></div>"})
+            expect(CHALLENGE_CONTROL, good.replace(SUBMIT, control + SUBMIT));
+        expect(FIELD_STATE, good.replace("type='hidden'", "type='hidden' required onfocus='" + SECRET + "'"));
+        expect(FIELD_NAME, good.replace(SUBMIT, hidden("bad-name", SECRET) + SUBMIT));
+        expect(RESERVED_FIELD, good.replace(SUBMIT, hidden("access_token", SECRET) + SUBMIT));
+        expect(DUPLICATE_FIELD, good.replace(SUBMIT, hidden("qrkey", "") + SUBMIT));
+        expect(FIELD_LIMIT, good.replace(SUBMIT, hidden("csrf", SECRET + "x".repeat(4097)) + SUBMIT));
     }
 
     @Test public void challengeAndFieldPolicyFailuresKeepSeparateCodes() {
