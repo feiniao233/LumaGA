@@ -449,7 +449,7 @@
     <string name="qr_review_notice">Only scan a code on a computer you trust. Continuing sends this account’s credentials only to the displayed NGA site to check its authorization form. You will confirm separately before that computer can sign in. Do not scan codes sent by strangers.</string>
     <string name="qr_scan_again">Scan again</string>
     <string name="qr_result_notice">Check the computer to confirm whether it signed in. Closing this screen does not revoke an authorization already submitted. Refresh the code before trying again.</string>
-    <string name="qr_page_failed">NGA’s authorization form could not be verified. No approval was submitted. Close and refresh the computer’s QR code, or sign in to LumaGA again if your session expired.</string>
+    <string name="qr_page_failed">Could not check NGA’s authorization form. No approval was submitted.</string>
     <string name="qr_official_result">Message returned by NGA</string>
     <string name="qr_scan_instruction">Open QR login on NGA in your computer’s browser, then point the camera at that code. Scan only codes on a computer you trust.</string>
     <string name="qr_camera_permission">Camera access is needed only for scanning. If permission is disabled, enable Camera for LumaGA in Android Settings and try again.</string>
@@ -464,4 +464,14 @@
     <string name="qr_submitting">Submitting once. Check the computer if the connection is interrupted…</string>
     <string name="qr_result_unconfirmed">Authorization result unconfirmed. The approval may already have succeeded. Check the computer before refreshing its code and scanning again. This request will not be retried automatically.</string>
     <string name="qr_server_error">NGA returned an error</string>
+    <string name="qr_diagnostic_credentials">The stored credential format could not be used for this request.</string>
+    <string name="qr_diagnostic_canceled">This attempt was interrupted or can no longer continue.</string>
+    <string name="qr_diagnostic_network">The connection did not complete. The code identifies the network stage.</string>
+    <string name="qr_diagnostic_http">NGA returned an unexpected HTTP response. The cause is not yet known.</string>
+    <string name="qr_diagnostic_response">The response format could not be verified. The cause is not yet known.</string>
+    <string name="qr_diagnostic_form">The page did not match the supported authorization form. This alone does not mean your account session expired.</string>
+    <string name="qr_diagnostic_logged_out">The official page explicitly says this device is not signed in. Why the session was not recognized is not yet known.</string>
+    <string name="qr_diagnostic_unknown">The cause has not been identified. Please share the diagnostic code.</string>
+    <string name="qr_diagnostic_code">Diagnostic code: %1$s</string>
+    <string name="qr_diagnostic_privacy">Only this fixed code is shown. No page contents, credentials or QR contents are recorded or uploaded for diagnosis. You can share the code as text; no Cookie or screenshot is needed.</string>
 </resources>

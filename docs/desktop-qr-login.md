@@ -26,10 +26,42 @@ create a WebView or require `MULTI_PROFILE`, including on Huawei devices. The
 existing WebView-based account sign-in flow is unchanged.
 
 If a code expires, refresh it on the computer and scan again. If the form cannot
-be verified, refresh your LumaGA account session and retry. A login challenge,
+be verified, note the fixed diagnostic code and its explanation below; that
+failure alone does not establish a problem with the account session. A login challenge,
 changed site form, or authentication flow requiring extra server cookies is
 currently unsupported and fails closed. If camera permission was permanently
 denied, enable it in Android Settings.
+
+## Local diagnostic codes (1.2.3)
+
+A preflight failure now shows a brief explanation and a fixed code such as
+`QR-F14`. Share only that code as text; no Cookie, QR contents, HTML, logs or
+screenshots are needed. Nothing is automatically uploaded for diagnosis.
+The code distinguishes a rejection stage; it does not establish the underlying
+compatibility cause or mean the account session expired.
+
+- `QR-Cxx`: credential format, canceled/stale attempt, or one-shot request state.
+- `QR-Nxx`: timeout, DNS, TLS, or other I/O failure.
+- `QR-Hxx`: redirect, non-200 status, or unexpected response destination.
+- `QR-Rxx`: content type, body size/empty body, encoding/HTML, or unconfirmed
+  result envelope/JSON/value/redaction.
+- `QR-Fxx`: specific form, field, handler, action or challenge check. For example,
+  `QR-F14` means the confirmation hook differs from the supported static form.
+- `QR-F08` is reserved for the exact visible logged-out message observed in a
+  correctly routed official form with neither authorization marker present.
+  Missing controls alone do not trigger this diagnosis. It does not prove why
+  the server did not recognize the session.
+- `QR-X00`: the cause is still unknown.
+
+Diagnostics use an enum and fixed localized strings only. Public exceptions are
+recreated without raw messages, causes or suppressed exceptions; no arbitrary
+HTML attribute names/values, endpoint URLs, credentials or scanned keys become
+part of a code. This update does not relax authorization checks or guess a new
+protocol. Explicitly invalid HTTP charset declarations are rejected instead of
+guessing a fallback. Any failure after submission still remains unconfirmed.
+
+The device-reported preflight incompatibility has not yet been reproduced with
+an authenticated official page; 1.2.3 is a diagnostic update, not a confirmed fix.
 
 ## Security boundaries
 
@@ -108,7 +140,8 @@ Apache-2.0 [Gson](https://github.com/google/gson).
 
 ## Verification and limits
 
-All 114 JVM tests pass (63 new in 1.2.2). They cover strict QR URLs, captured
+All 148 JVM tests pass, including 34 diagnostic regressions added in 1.2.3.
+They cover strict QR URLs, captured
 logged-out form rejection, synthetic
 supported forms/CSRF fields, hostile and ambiguous HTML, response envelopes,
 strict JSON, unknown results, no-submit preflight, one-shot requests, duplicate

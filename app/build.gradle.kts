@@ -25,8 +25,8 @@ android {
         applicationId = "com.bugenzhao.mnga"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10202
-        versionName = "1.2.2"
+        versionCode = 10203
+        versionName = "1.2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

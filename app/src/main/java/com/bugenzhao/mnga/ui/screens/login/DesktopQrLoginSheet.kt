@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bugenzhao.mnga.App
 import com.bugenzhao.mnga.BuildConfig
 import com.bugenzhao.mnga.auth.NgaQrAuthorizationSession
+import com.bugenzhao.mnga.auth.NgaQrDiagnostic
 import com.bugenzhao.mnga.auth.NgaQrLoginResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -82,6 +83,7 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
     var ready by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Int?>(null) }
+    var diagnostic by remember { mutableStateOf<NgaQrDiagnostic?>(null) }
     var result by remember { mutableStateOf<NgaQrLoginResult?>(null) }
 
     fun close() {
@@ -95,6 +97,7 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
             gate.cancel()
             session?.close()
             error = if (session?.wasSubmitted() == true) R.string.qr_result_unconfirmed else R.string.qr_account_changed
+            diagnostic = NgaQrDiagnostic.CANCELED
         }
     }
     DisposableEffect(lifecycleOwner) {
@@ -103,6 +106,7 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
                 gate.cancel()
                 session?.close()
                 error = if (session?.wasSubmitted() == true) R.string.qr_result_unconfirmed else R.string.qr_interrupted
+                diagnostic = NgaQrDiagnostic.CANCELED
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -129,7 +133,10 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
                 )
                 when {
                     error != null -> {
-                        Text(stringResource(error!!), Modifier.padding(24.dp))
+                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Text(stringResource(error!!))
+                            diagnostic?.let { QrDiagnosticNotice(it) }
+                        }
                         TextButton(onClick = { close() }, modifier = Modifier.padding(horizontal = 16.dp)) {
                             Text(stringResource(R.string.qr_close))
                         }
@@ -137,7 +144,10 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
                     result != null -> {
                         Column(Modifier.verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             when (result!!.kind) {
-                                NgaQrLoginResult.Kind.UNCONFIRMED -> Text(stringResource(R.string.qr_result_unconfirmed))
+                                NgaQrLoginResult.Kind.UNCONFIRMED -> {
+                                    Text(stringResource(R.string.qr_result_unconfirmed))
+                                    result!!.diagnostic?.let { QrDiagnosticNotice(it) }
+                                }
                                 else -> {
                                     Text(stringResource(if (result!!.kind == NgaQrLoginResult.Kind.SERVER_ERROR) R.string.qr_server_error else R.string.qr_official_result), style = MaterialTheme.typography.titleMedium)
                                     Text(result!!.message)
@@ -164,14 +174,17 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
                                 Button(onClick = {
                                     if (busy) return@Button
                                     val active = session ?: return@Button
-                                    if (!isCurrent()) { error = R.string.qr_account_changed; return@Button }
+                                    if (!isCurrent()) { error = R.string.qr_account_changed; diagnostic = NgaQrDiagnostic.CANCELED; return@Button }
                                     busy = true
                                     scope.launch {
                                         try {
                                             val response = withContext(Dispatchers.IO) { active.submit() }
                                             if (session === active) {
                                                 busy = false
-                                                if (isCurrent()) result = response else error = R.string.qr_result_unconfirmed
+                                                if (isCurrent()) result = response else {
+                                                    error = R.string.qr_result_unconfirmed
+                                                    diagnostic = NgaQrDiagnostic.CANCELED
+                                                }
                                             }
                                         } finally { active.close() }
                                     }
@@ -179,20 +192,26 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
                             } else {
                                 Button(onClick = {
                                     if (busy) return@Button
-                                    if (!isCurrent()) { error = R.string.qr_account_changed; return@Button }
+                                    if (!isCurrent()) { error = R.string.qr_account_changed; diagnostic = NgaQrDiagnostic.CANCELED; return@Button }
                                     val active = runCatching { NgaQrAuthorizationSession(target!!, original.uid, original.token, BuildConfig.VERSION_NAME, ::isCurrent) }
-                                        .getOrElse { error = R.string.qr_page_failed; return@Button }
+                                        .getOrElse { error = R.string.qr_page_failed; diagnostic = NgaQrDiagnostic.from(it); return@Button }
                                     session = active
                                     busy = true
                                     scope.launch {
                                         var keepOpen = false
                                         try {
-                                            val prepared = withContext(Dispatchers.IO) { runCatching { active.prepare() }.isSuccess }
+                                            val failure = withContext(Dispatchers.IO) {
+                                                try { active.prepare(); null }
+                                                catch (error: Exception) { NgaQrDiagnostic.from(error) }
+                                            }
                                             if (session === active) {
                                                 busy = false
-                                                if (!isCurrent()) error = R.string.qr_account_changed
-                                                else if (prepared) { ready = true; keepOpen = true }
-                                                else error = R.string.qr_page_failed
+                                                if (!isCurrent()) {
+                                                    // Preserve an explicit background/close reason already set.
+                                                    if (error == null) error = R.string.qr_account_changed
+                                                    diagnostic = NgaQrDiagnostic.CANCELED
+                                                } else if (failure == null) { ready = true; keepOpen = true }
+                                                else { error = R.string.qr_page_failed; diagnostic = failure }
                                             }
                                         } finally { if (!keepOpen) active.close() }
                                     }
@@ -202,6 +221,7 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
                                 session?.close()
                                 session = null
                                 ready = false
+                                diagnostic = null
                                 target = null
                             }) { Text(stringResource(R.string.qr_scan_again)) }
                         }
@@ -210,6 +230,24 @@ fun DesktopQrLoginSheet(onDismiss: () -> Unit) {
             }
         }
     }
+}
+
+/** Only enum-selected local strings and a fixed code reach the diagnostic UI. */
+@Composable
+private fun QrDiagnosticNotice(diagnostic: NgaQrDiagnostic) {
+    val hint = when (diagnostic.hint) {
+        NgaQrDiagnostic.Hint.CREDENTIALS -> R.string.qr_diagnostic_credentials
+        NgaQrDiagnostic.Hint.CANCELED -> R.string.qr_diagnostic_canceled
+        NgaQrDiagnostic.Hint.NETWORK -> R.string.qr_diagnostic_network
+        NgaQrDiagnostic.Hint.HTTP -> R.string.qr_diagnostic_http
+        NgaQrDiagnostic.Hint.RESPONSE -> R.string.qr_diagnostic_response
+        NgaQrDiagnostic.Hint.FORM -> R.string.qr_diagnostic_form
+        NgaQrDiagnostic.Hint.LOGGED_OUT -> R.string.qr_diagnostic_logged_out
+        else -> R.string.qr_diagnostic_unknown
+    }
+    Text(stringResource(hint))
+    Text(stringResource(R.string.qr_diagnostic_code, diagnostic.code), style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.qr_diagnostic_privacy), style = MaterialTheme.typography.bodySmall)
 }
 
 @Composable

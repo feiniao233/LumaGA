@@ -447,7 +447,7 @@
     <string name="qr_review_notice">只扫描你信任的电脑上显示的二维码。继续后会仅向上方 NGA 官方站点提供当前账号的登录凭据，检查授权表单；之后还需你单独确认，才会授权电脑登录。请勿扫描陌生人发来的二维码。</string>
     <string name="qr_scan_again">重新扫码</string>
     <string name="qr_result_notice">请在电脑上检查是否已登录。关闭此页面不会撤销已经提交的授权。再次尝试前请刷新电脑上的二维码。</string>
-    <string name="qr_page_failed">无法验证 NGA 授权表单，尚未提交授权。请关闭后刷新电脑上的二维码再试；如果账号会话已失效，请重新登录 LumaGA。</string>
+    <string name="qr_page_failed">无法完成 NGA 授权表单检查，尚未提交授权。</string>
     <string name="qr_official_result">NGA 返回的信息</string>
     <string name="qr_scan_instruction">在电脑浏览器打开 NGA 的二维码登录页，再将摄像头对准二维码。只扫描你信任的电脑上的二维码。</string>
     <string name="qr_camera_permission">仅扫码时需要相机权限。如果已禁止权限，请在 Android 设置中允许 LumaGA 使用相机后重试。</string>
@@ -462,4 +462,14 @@
     <string name="qr_submitting">正在提交一次授权。如果网络中断，请先检查电脑…</string>
     <string name="qr_result_unconfirmed">授权结果未确认，已提交的授权可能已经生效。请先检查电脑是否已登录，再决定是否刷新二维码重新扫描。本次请求不会自动重试。</string>
     <string name="qr_server_error">NGA 返回错误</string>
+    <string name="qr_diagnostic_credentials">当前保存的登录凭据格式无法用于本次请求。</string>
+    <string name="qr_diagnostic_canceled">本次操作已中断或不能继续。</string>
+    <string name="qr_diagnostic_network">网络连接未完成，下方诊断码可区分连接失败的环节。</string>
+    <string name="qr_diagnostic_http">NGA 返回了非预期的 HTTP 响应，具体原因尚未确定。</string>
+    <string name="qr_diagnostic_response">返回内容的格式无法验证，具体原因尚未确定。</string>
+    <string name="qr_diagnostic_form">页面不符合当前支持的授权表单结构，不能仅凭此判断账号会话已失效。</string>
+    <string name="qr_diagnostic_logged_out">官方页面明确提示这台设备未登录，尚不确定为什么没有识别当前会话。</string>
+    <string name="qr_diagnostic_unknown">暂时无法确定原因，请提供下方诊断码。</string>
+    <string name="qr_diagnostic_code">诊断码：%1$s</string>
+    <string name="qr_diagnostic_privacy">仅显示固定诊断码，不为诊断记录或上传网页、登录凭据及二维码内容。反馈时只需提供此码，无需提供 Cookie 或截图。</string>
 </resources>
